@@ -43,7 +43,7 @@ This project demonstrates end-to-end full-stack development including frontend, 
 hrms-lite/
 │
 ├── backend/ # Django Backend
-├── frontend/ # React Frontend
+├── frontend/hrms # React Frontend
 └── README.md
 
 ---
