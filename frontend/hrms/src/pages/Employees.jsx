@@ -14,6 +14,15 @@ export default function Employees() {
     department: "",
   });
 
+  const DEPARTMENT_CHOICES = [
+    "IT",
+    "Computer Science",
+    "Data Science",
+    "HR",
+    "Python Developer",
+    "Java Developer",
+  ];
+
   const fetchEmployees = async () => {
     try {
       setLoading(true);
@@ -39,14 +48,7 @@ export default function Employees() {
       } else {
         await API.post("employees/", form);
       }
-
-      setForm({
-        employee_id: "",
-        full_name: "",
-        email: "",
-        department: "",
-      });
-
+      setForm({ employee_id: "", full_name: "", email: "", department: "" });
       setEditingId(null);
       fetchEmployees();
     } catch (err) {
@@ -87,8 +89,12 @@ export default function Employees() {
 
   return (
     <div style={styles.container}>
+      <h1 style={styles.pageTitle}>HRMS Lite - Employee Management</h1>
+
       <div style={styles.card}>
-        <h2 style={styles.heading}>Employee Management</h2>
+        <h2 style={styles.heading}>
+          {editingId ? "Edit Employee" : "Add New Employee"}
+        </h2>
 
         {error && <div style={styles.error}>{error}</div>}
 
@@ -102,7 +108,6 @@ export default function Employees() {
             }
             style={styles.input}
           />
-
           <input
             required
             placeholder="Full Name"
@@ -112,54 +117,57 @@ export default function Employees() {
             }
             style={styles.input}
           />
-
           <input
             required
             type="email"
             placeholder="Email"
             value={form.email}
-            onChange={(e) =>
-              setForm({ ...form, email: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
             style={styles.input}
           />
-
-          <input
+          <select
             required
-            placeholder="Department"
             value={form.department}
             onChange={(e) =>
               setForm({ ...form, department: e.target.value })
             }
             style={styles.input}
-          />
+          >
+            <option value="">Select Department</option>
+            {DEPARTMENT_CHOICES.map((dep) => (
+              <option key={dep} value={dep}>
+                {dep}
+              </option>
+            ))}
+          </select>
 
-          <button type="submit" style={styles.primaryBtn}>
-            {editingId ? "Update Employee" : "Add Employee"}
-          </button>
-
-          {editingId && (
-            <button
-              type="button"
-              onClick={() => {
-                setEditingId(null);
-                setForm({
-                  employee_id: "",
-                  full_name: "",
-                  email: "",
-                  department: "",
-                });
-              }}
-              style={styles.cancelBtn}
-            >
-              Cancel
+          <div style={styles.buttonRow}>
+            <button type="submit" style={styles.primaryBtn}>
+              {editingId ? "Update Employee" : "Add Employee"}
             </button>
-          )}
+            {editingId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingId(null);
+                  setForm({
+                    employee_id: "",
+                    full_name: "",
+                    email: "",
+                    department: "",
+                  });
+                }}
+                style={styles.cancelBtn}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
-      <div style={styles.tableCard}>
-        <h3 style={{ marginBottom: "15px" }}>Employee List</h3>
+      <div style={styles.card}>
+        <h2 style={styles.heading}>Employee List</h2>
 
         {loading ? (
           <p>Loading...</p>
@@ -177,13 +185,19 @@ export default function Employees() {
               </tr>
             </thead>
             <tbody>
-              {employees.map((emp) => (
+              {employees.map((emp, idx) => (
                 <tr
                   key={emp.id}
-                  style={
-                    editingId === emp.id
-                      ? { backgroundColor: "#f3f4f6" }
-                      : {}
+                  style={{
+                    backgroundColor: idx % 2 === 0 ? "#f9fafb" : "#ffffff",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#e0f2fe")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      idx % 2 === 0 ? "#f9fafb" : "#ffffff")
                   }
                 >
                   <td>{emp.employee_id}</td>
@@ -220,21 +234,21 @@ const styles = {
     margin: "40px auto",
     fontFamily: "Arial, sans-serif",
   },
+  pageTitle: {
+    textAlign: "center",
+    marginBottom: "30px",
+    color: "#1f2937",
+  },
   card: {
     background: "#ffffff",
     padding: "25px",
-    borderRadius: "10px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
+    borderRadius: "8px",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
     marginBottom: "30px",
-  },
-  tableCard: {
-    background: "#ffffff",
-    padding: "25px",
-    borderRadius: "10px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
   },
   heading: {
     marginBottom: "20px",
+    color: "#111827",
   },
   form: {
     display: "grid",
@@ -243,21 +257,26 @@ const styles = {
   input: {
     padding: "10px",
     borderRadius: "6px",
-    border: "1px solid #ddd",
+    border: "1px solid #d1d5db",
     fontSize: "14px",
   },
+  buttonRow: {
+    display: "flex",
+    gap: "10px",
+    marginTop: "10px",
+  },
   primaryBtn: {
-    padding: "10px",
+    padding: "10px 15px",
     background: "#2563eb",
-    color: "white",
+    color: "#fff",
     border: "none",
     borderRadius: "6px",
     cursor: "pointer",
   },
   cancelBtn: {
-    padding: "10px",
+    padding: "10px 15px",
     background: "#6b7280",
-    color: "white",
+    color: "#fff",
     border: "none",
     borderRadius: "6px",
     cursor: "pointer",
@@ -265,7 +284,7 @@ const styles = {
   editBtn: {
     padding: "6px 10px",
     background: "#f59e0b",
-    color: "white",
+    color: "#fff",
     border: "none",
     borderRadius: "5px",
     marginRight: "5px",
@@ -274,7 +293,7 @@ const styles = {
   deleteBtn: {
     padding: "6px 10px",
     background: "#ef4444",
-    color: "white",
+    color: "#fff",
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",
@@ -282,6 +301,7 @@ const styles = {
   table: {
     width: "100%",
     borderCollapse: "collapse",
+    marginTop: "10px",
   },
   error: {
     background: "#fee2e2",
